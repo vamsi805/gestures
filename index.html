@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Web site created using create-snowpack-app" />
+    <link href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css" rel="stylesheet">
+<script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="/index.css" />
+    <title>Snowpack App</title>
+  </head>
+  <body>
+   
+    <h1>Recognize hand gestures using the MediaPipe HandGestureRecognizer task</h1>
+
+    <section id="demos" class="invisible">
+      
+      <p><em>Click on an image below</em> to identify the gestures in the image.</p>
+    
+      <div class="detectOnClick">
+        <img src="https://assets.codepen.io/9177687/idea-gcbe74dc69_1920.jpg" crossorigin="anonymous" title="Click to get recognize!" />
+        <p class="classification removed">
+      </div>
+      <div class="detectOnClick">
+        <img src="https://assets.codepen.io/9177687/thumbs-up-ga409ddbd6_1.png" crossorigin="anonymous" title="Click to get recognize!" />
+        <p class="classification removed">
+      </div>
+    
+      <h2><br>Demo: Webcam continuous hand gesture detection</h2>
+      <p>Use your hand to make gestures in front of the camera to get gesture classification. </br>Click <b>enable webcam</b> below and grant access to the webcam if prompted.</p>
+    
+      <div id="liveView" class="videoView">
+        <button id="webcamButton" class="mdc-button mdc-button--raised">
+          <span class="mdc-button__ripple"></span>
+          <span class="mdc-button__label">ENABLE WEBCAM</span>
+        </button>
+        <div style="position: relative;">
+          <video id="webcam" autoplay playsinline></video>
+          <canvas class="output_canvas" id="output_canvas" width="1280" height="720" style="position: absolute; left: 0px; top: 0px;"></canvas>
+          <p id='gesture_output' class="output">
+        </div>
+      </div>
+    </section>
+    <script type="module" src="/dist/index.js"></script>
+    <script>  
+      function showMessage(messageHTML) {
+        $('#chat-box').append(messageHTML);
+      }
+    
+      $(document).ready(function(){
+        var websocket = new WebSocket("ws://localhost:8090/demo/php-socket.php"); 
+        websocket.onopen = function(event) { 
+          showMessage("<div class='chat-connection-ack'>Connection is established!</div>");		
+        }
+        websocket.onmessage = function(event) {
+          var Data = JSON.parse(event.data);
+          showMessage("<div class='"+Data.message_type+"'>"+Data.message+"</div>");
+          $('#chat-message').val('');
+        };
+        
+        websocket.onerror = function(event){
+          showMessage("<div class='error'>Problem due to some Error</div>");
+        };
+        websocket.onclose = function(event){
+          showMessage("<div class='chat-connection-ack'>Connection Closed</div>");
+        }; 
+        
+        $('#frmChat').on("submit",function(event){
+          event.preventDefault();
+          $('#chat-user').attr("type","hidden");		
+          var messageJSON = {
+            chat_user: $('#chat-user').val(),
+            chat_message: $('#chat-message').val()
+          };
+          websocket.send(JSON.stringify(messageJSON));
+        });
+      });
+    </script>
+  </body>
+</html>
