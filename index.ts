@@ -3,26 +3,25 @@ import {
   FilesetResolver,
   DrawingUtils
 } from "https://cdn.skypack.dev/@mediapipe/tasks-vision@0.1.0-alpha-11";
-import * as io from "socket.io-client";
 
-// Connect to the server
-const socket = io.connect("http://localhost:3000");
+const formData = new URLSearchParams();
 
-// Handle socket events
-socket.on("connect", () => {
-  console.log("Connected to server");
+formData.append("name", "res");
+
+fetch("http://127.0.0.1/water-tank/phpinfo.php", {
+method: "POST",
+headers: {
+  "Content-Type": "application/x-www-form-urlencoded",
+},
+body: formData.toString(),
+})
+.then(response => response.json())
+.then(data => {
+  console.log(data);
+})
+.catch(error => {
+  console.error('Error:', error);
 });
-
-socket.on("disconnect", () => {
-  console.log("Disconnected from server");
-});
-
-socket.on("message", (data: string) => {
-  console.log("Received message from server: ", data);
-});
-
-// Send message to server
-socket.emit("message", "Hello, server!");
 
 
 const demosSection = document.getElementById("demos");
@@ -187,6 +186,7 @@ async function predictWebcam() {
   let nowInMs = Date.now();
   const results = gestureRecognizer.recognizeForVideo(video, nowInMs);
 
+  
   canvasCtx.save();
   canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
@@ -212,10 +212,34 @@ async function predictWebcam() {
       results.gestures[0][0].score * 100
     ).toFixed(2);
     gestureOutput.innerText = `GestureRecognizer: ${categoryName}\n Confidence: ${categoryScore} %`;
+
+    const formData = new URLSearchParams();
+    formData.append("name", categoryName);
+    
+    fetch("http://127.0.0.1/water-tank/phpinfo.php", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: formData.toString(),
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log(data);
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+    
+
   } else {
     gestureOutput.style.display = "none";
+
+
+ 
   }
   // Call this function again to keep predicting when the browser is ready.
+  
   if (webcamRunning === true) {
     window.requestAnimationFrame(predictWebcam);
   }
